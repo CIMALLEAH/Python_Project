@@ -26,70 +26,102 @@ av_b = list(vb_lib.keys())
 
 def view_vb():  #All Vacation Locations
     print ("-"*55)
-    print ("   Vacation Locations in the Philippines")
+    print ("         Vacation Locations in the Philippines")
     print ("-"*55)
-    for index, (name, det) in enumerate(vb_lib.items(), start=1):
-        print (f"{index}.""\n   Location: "f"{det['loc']}""\n   Price: Php "f"{det['p']}"".00""\n   "f"{det['d']}") 
+    for index, (det) in enumerate(vb_lib.items(), start=1):
+        print (index, ".\n   Location: ", det[1]['loc'], "\n   Price: Php {:.2f}".format(float(det[1]['p'])), "\n  ", det[1]['d'])
         print () 
     
 def view_all_booked(): #Compiled Already Booked Loacations
-    print("Currently Booked Vacation Stays (All Users):")
+    bookings_exist = False
+    print ("-"*55)
+    print("      Currently Booked Vacation Stays (All Users)")
+    print ("-"*55)
     for username, user_details in users_list.items():
         bookings = user_details.get("bookings", [])
         if bookings:
-            print(f"User: {username}")
+            bookings_exist = True
+            print ("-"*55)
+            print(f"\nUser: {username}")
             for index, booking in enumerate(bookings, start=1):
                 print(f"   {index}. Location: {booking['location']}")
                 print(f"      Duration: {booking['duration']} days")
-                print(f"      Total Cost: Php {booking['total_cost']}.00")
+                print(f"      Total Cost: Php {booking['total_cost']}")
+            print ("-"*55)
             print()
+
+    if not bookings_exist:
+        print("\nNo bookings found.")
+        print ("-"*55)
 
 def avail_vb(): #Available Locations
     print ("-"*55)
-    print ("   Available Vacation Locations in the Philippines")
+    print ("     Available Vacation Locations in the Philippines")
     print ("-"*55)
     av_bl = [key for key, value, in vb_lib.items() if value['available']]
     if av_bl:
         for index, name in enumerate(av_bl, start=1):
             det = vb_lib[name]
-            print (f"{index}.""\n   Location: "f"{det['loc']}""\n   Price: Php "f"{det['p']}"".00""\n   "f"{det['d']}") 
+            print (index, ".\n   Location: ", det['loc'], "\n   Price: Php {:.2f}".format(float(det['p'])), "\n  ", det['d'])
             print () 
     else:
         print ("\n" + " "*16 + "NO AVAILABLE LOCATIONS")
 
-def vb_h(username): #View Booking History
-    booking_history = users_list[username]["booking_history"]
-
-    if not booking_history:
-        print("No booking history.\n")
+def vb_h(user, username=None): # View Booking History
+    if user == "admin":
+        if username:
+            booking_history = users_list.get(username, {}).get("booking_history", [])
+            if not booking_history:
+                print(f"No booking history found for user: {username}\n")
+            else:
+                print(f"\nBooking History for user: {username}:")
+                for i, booking in enumerate(booking_history, start=1):
+                    print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}")
+                print()
+        else:
+            print("No username provided.\n")
     else:
-        print("\nBooking History:")
-        for i, booking in enumerate(booking_history, start=1):
-            print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, "f"Total Cost: Php {booking['total_cost']}.00")
-        print()
+        booking_history = users_list[user].get("booking_history", [])
+        if not booking_history:
+            print("No booking history.\n")
+        else:
+            print("\nYour Booking History:")
+            for i, booking in enumerate(booking_history, start=1):
+                print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}")
+            print()
 
-    input("\nPress Enter to exits...")
-    return user_login_menu()
+    input("\nPress Enter to exit...")
+    if user == "admin":
+        admin_login_menu()
+    else:
+        user_login_menu(user)
 
 def aview_userbh(): #Admin Viewing Users Booking History
-    username = input("Enter the Username of User: ")
+    print ("-"*55)
+    print ("            User Booking History")
+    print ("-"*55)
+    username = input("\nEnter the Username of User: ")
     if username in users_list:
-        vb_h(username)
+        vb_h(user, username=None)
     else:
-        print("User not found.")
+        print("\nUser not found.")
+        input("\nPress Enter to exits...")
+        return admin_login_menu()
 
 def view_auab(): #Users and Their Bookings
-    print("All Users and Their Booking Status:")
+    print ("-"*55)
+    print("All Users and Their Booking Status")
+    print ("-"*55)
     total_currently_booked = 0
-    for username, user_details in users_list.items():
+    for index, (username, user_details) in users_list.items():
         bookings = user_details.get("bookings", [])
         booking_status = "Has Bookings" if bookings else "No Bookings"
-        print(f"User: {username} - {booking_status}")
+        print(f"{index}. User: {username} - {booking_status}")
         if bookings:
             total_currently_booked += len(bookings)
     print(f"\nTotal Currently Booked Vacation Stays: {total_currently_booked}\n")
-
-def bv_s(username): #Book a Vacation Stay
+def bv_s(username): #Book a Vacation 
+    print ("-"*55)
     print ("             WHICH WOULD YOU LIKE TO BOOK?")
     avail_vb()
 
@@ -111,7 +143,7 @@ def bv_s(username): #Book a Vacation Stay
                 print("\nLocation is not available for booking.")
                 return
 
-            print ("\n Location: ",det['loc'],"\n Price: Php ",det['p'],".00""\n",det['d'])
+            print ("\n Location: ",det['loc'],"\n Price: Php {:.2f}".format(float(det['p'])), "\n", det['d'])
             while True:
                 ls = int(input("\n How long will the duration of your stay (in days) be? "))
                 if ls <= 0:
@@ -119,8 +151,8 @@ def bv_s(username): #Book a Vacation Stay
                 else:
                     break
 
-            total_cost = det['p']*ls
-            print ("\n Total Cost of your ",ls,"day/s Stay: Php ",total_cost,".00") 
+            total_cost = round(float(det['p']) * ls, 2)
+            print ("\n Total Cost of your ",ls,"day/s Stay: Php ",total_cost) 
             
             book = input("\n Book this Location? (Y/N): ").lower()
             if book == 'y':
@@ -137,15 +169,14 @@ def bv_s(username): #Book a Vacation Stay
 
                 while True:
                     book_again = input("\n Do you wish to Book another? (Y/N): ").lower()
-                    print ("-"*55)
                     if book_again == 'y':
                         bv_s(username)
                     elif book_again == 'n':
                         return_lm = input("\n Return to the main menu? (Y/N): ").lower()
                         if return_lm == 'y':
                             user_login_menu(username)
-                        else:
-                            print("\n Invalid input.")
+                        elif return_lm == 'n':
+                            book_again
                     else:
                         print("\n Invalid input.")
             else:
@@ -157,41 +188,122 @@ def bv_s(username): #Book a Vacation Stay
             return
 
 def b_bvs(username): #View and Edit Currently Booked Vacation Stays
-    
     bookings = users_list[username]["bookings"]
 
     if not bookings:
-        print(f"\n {username}, you have no current bookings.\n")
+        print(f"{username}, you have no current bookings.\n")
         input("\nPress Enter to exits...")
-        return user_login_menu()
+        return user_login_menu(username)
     
-    print("\nCurrently Booked Locations:")
-    for i, booking in enumerate(bookings, start=1):
-            print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}.00")
-
     while True:
+
+        print("\nCurrently Booked Locations:")
+        for i, booking in enumerate(bookings, start=1):
+            print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}")
+
+    
         choice = input("\nDo you want to Cancel/Delete a Booked Location? (Y/N): ").lower()
         if choice == 'n':
-            return
+            return user_login_menu(username)
         elif choice == 'y':
-            while True:
-                try:
-                    booking_number = int(input("\nEnter the number of the booking you want to delete (0 to cancel): "))
-                    if booking_number == 0:
-                        return
-                    elif 1 <= booking_number <= len(bookings):
-                        del bookings[booking_number - 1]
-                        cancelled_booking = bookings.pop(booking_number - 1)
-                        av_b.append(cancelled_booking['location']) 
-                        print("Booked Location Canceled/Deleted Successfully.")
-                        return
-                    else:
-                        print("Invalid number. Please enter a valid  number.")
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
+            try:
+                booking_number = int(input("\nEnter the number of the booking you want to delete (0 to cancel): "))
+                if booking_number == 0:
+                    return
+                elif 1 <= booking_number <= len(bookings):
+                    cancelled_booking = bookings.pop(booking_number - 1)
+                    av_b.append(cancelled_booking['location']) 
+                    print("\nBooked Location Canceled/Deleted Successfully.")
+                    input("\nPress Enter to exits...")
+                    return user_login_menu()
+                else:
+                    print("Invalid number. Please enter a valid  number.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
         else:
             print("Invalid input. Please enter 'Y' or 'N'.")
 
+def add_loc(): #Add Locations
+    print("-" * 55)
+    print("\t\t      Add Location")
+    print("-" * 55)
+    loc_name = input("\nEnter the location name: ")
+    price = input("Enter the price for this location (Php): ")
+    description = input("Enter the description of this location (EXAMPLE: Guesthouse: 2  guests, 1 bedroom - Beachfront'): ")
+
+    new_key = str(len(vb_lib) + 1)
+    vb_lib[new_key] = {'loc': loc_name, 'p': round(float(price), 2), 'd': description, 'available': True}
+    print("\nLocation added successfully.")
+    input("\nPress Enter to exits...")
+    return ad_1()
+
+def del_loc(): #Delete Locations
+    print("-" * 55)
+    print("\t\t    Delete Location")
+    view_vb()
+    loc_key = input("Enter the number of the location to delete: ")
+    if loc_key in vb_lib:
+        del vb_lib[loc_key]
+        print("\nLocation deleted successfully.")
+        input("\nPress Enter to exits...")
+        return ad_1()
+    else:
+        print("\nInvalid location number.")
+        input("\nTry Again...")
+        return del_loc()
+
+def change_price(): #Change Prices
+    print("-" * 55)
+    print("\t\t     Change Price")
+    view_vb()
+    loc_key = input("Enter the number of the location to change price: ")
+    if loc_key in vb_lib:
+        new_price = input("\nEnter the new price for this location (Php): ")
+        vb_lib[loc_key]['p'] = round(float(new_price), 2)
+        print("\nPrice changed successfully.")
+        input("\nPress Enter to exits...")
+        return ad_1()
+    else:
+        print("\nInvalid location number.")
+        input("\nTry Again...")
+        return change_price()
+
+def del_user(username_del): #User Delete
+    if username_del in users_list:
+        del users_list[username_del]
+        print(f"\nUser '{username_del}' deleted successfully.")
+        input("\nPress Enter to exits...")
+        return admin_login_menu()
+
+    else:
+        print("\nUser not found.")
+        input("\nPress Enter to exits...")
+        return admin_login_menu()
+
+def ad_1(): #View and Edit Libraries
+    view_vb()
+    avail_vb()
+    view_all_booked()
+    print("\n\nLocation Editing Options:\n  1. Add New Location\n  2. Delete Location\n  3. Change Price For a Vacation Stay\n  4. Exit")
+    edit = input("\nWhat would you like to do? ").lower()
+    
+    if edit == '1':
+        add_loc()
+    elif edit == '2':
+        del_loc()
+    elif edit == '3':
+        change_price()
+    elif edit == '4':
+        return admin_login_menu()
+    else:
+        print("\nInvalid Input.")
+        yn = input("\nWould you like to try again? (Y/N): ").lower()
+        if yn == 'y':
+            return ad_1
+        elif yn == 'n':
+            input("\nPress Enter to exit...")
+            return admin_login_menu()
+    
 def register_user(): #Register User
     print ("-"*55)
     print ("\t\t          Sign Up")
@@ -258,12 +370,11 @@ def admin_login_menu(): #Admin Menu
         choice = input ("\nEnter your choice: ")
 
         if choice == "1": #add
-            view_vb()
-            avail_vb()
-            view_all_booked()
-        
+            ad_1()
         elif choice == "2": #change
             view_auab()
+            username_del = input("Enter the username to delete: ")
+            del_user(username_del)
 
         elif choice == "3":
             aview_userbh()
@@ -294,14 +405,11 @@ def user_login(): #User Login
                 print("\nLogin Successful")
                 input("\nPress Enter to continue...")
                 return user_login_menu(username)
+            
             elif not username or username not in users_list:
                 print("\nUser does not exist!!!")
                 input("\nPress Enter to exits...")
                 return main_menu()
-            elif username in users_list and users_list[username]['password'] != password:
-                print("\nInvalid account username or password.")
-                input("\nPress Enter to try again...")
-                return user_login()
 
 def user_login_menu(username): #User Menu
     while True:
@@ -317,7 +425,6 @@ def user_login_menu(username): #User Menu
         choice = input ("\nEnter your choice: ")
 
         if choice == "1": #change
-            print ("-"*55)
             bv_s(username)
 
         elif choice == "2": #change
@@ -326,7 +433,7 @@ def user_login_menu(username): #User Menu
         
         elif choice == "3":
             print("-" * 55)
-            vb_h(username)
+            vb_h(user, username=None)
 
         elif choice == "4":
             logout()
@@ -343,7 +450,7 @@ def logout(): #Logout
     current_user = None
 
     print("\nYou have been successfully logged out.")
-    print("Redirecting to the login page...")
+    print("Redirecting to the main menu...")
     main_menu() 
 
 def main_menu(): #Main Menu
@@ -351,7 +458,7 @@ def main_menu(): #Main Menu
         print ("="*55)
         print (" Welcome to the Philippines Vacation Booking System!!!")
         print ("="*55)
-        print (" 1. Available Vacation Locations")
+        print ("\n 1. Available Vacation Locations")
         print (" 2. Admin Login")
         print (" 3. User Login")
         print (" 4. Register User")
