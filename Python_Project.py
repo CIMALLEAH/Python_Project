@@ -5,7 +5,7 @@ import uuid
 admin_username = "Micha"
 admin_password = "507250"
 
-vb_lib = {#DONE
+vb_lib = {#Locations Library
     
     '1': {'loc': 'Boracay, Malay', 'p': 2500, 'd':'Guesthouse: 2  guests, 1 bedroom - Beachfront', 'available': True},
     '2': {'loc': 'Boracay, Malay', 'p': 3816, 'd':'Guesthouse: 6  guests, 1 bedroom - Beachfront', 'available': True},
@@ -16,7 +16,7 @@ vb_lib = {#DONE
 
 }
 
-users_list = { #DONE
+users_list = { #Users
     
     "tester": {"password": "111111", "bookings": [], "booking_history": []},
 
@@ -24,7 +24,7 @@ users_list = { #DONE
 
 av_b = list(vb_lib.keys())
 
-def view_vb():  #DONE
+def view_vb():  #All Vacation Locations
     print ("-"*55)
     print ("   Vacation Locations in the Philippines")
     print ("-"*55)
@@ -32,7 +32,7 @@ def view_vb():  #DONE
         print (f"{index}.""\n   Location: "f"{det['loc']}""\n   Price: Php "f"{det['p']}"".00""\n   "f"{det['d']}") 
         print () 
     
-def view_all_booked():
+def view_all_booked(): #Compiled Already Booked Loacations
     print("Currently Booked Vacation Stays (All Users):")
     for username, user_details in users_list.items():
         bookings = user_details.get("bookings", [])
@@ -44,7 +44,7 @@ def view_all_booked():
                 print(f"      Total Cost: Php {booking['total_cost']}.00")
             print()
 
-def avail_vb(): #DONE
+def avail_vb(): #Available Locations
     print ("-"*55)
     print ("   Available Vacation Locations in the Philippines")
     print ("-"*55)
@@ -57,28 +57,28 @@ def avail_vb(): #DONE
     else:
         print ("\n" + " "*16 + "NO AVAILABLE LOCATIONS")
 
-    input("\nPress Enter to exits...")
-    return main_menu()
-
-def vb_h(username):
+def vb_h(username): #View Booking History
     booking_history = users_list[username]["booking_history"]
 
     if not booking_history:
-        print("\n You have no booking history.\n")
+        print("No booking history.\n")
     else:
         print("\nBooking History:")
         for i, booking in enumerate(booking_history, start=1):
             print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, "f"Total Cost: Php {booking['total_cost']}.00")
         print()
 
-def aview_userbh():
+    input("\nPress Enter to exits...")
+    return user_login_menu()
+
+def aview_userbh(): #Admin Viewing Users Booking History
     username = input("Enter the Username of User: ")
     if username in users_list:
         vb_h(username)
     else:
         print("User not found.")
 
-def view_auab():
+def view_auab(): #Users and Their Bookings
     print("All Users and Their Booking Status:")
     total_currently_booked = 0
     for username, user_details in users_list.items():
@@ -89,7 +89,7 @@ def view_auab():
             total_currently_booked += len(bookings)
     print(f"\nTotal Currently Booked Vacation Stays: {total_currently_booked}\n")
 
-def bv_s(username):#DONE
+def bv_s(username): #Book a Vacation Stay
     print ("             WHICH WOULD YOU LIKE TO BOOK?")
     avail_vb()
 
@@ -156,13 +156,14 @@ def bv_s(username):#DONE
             print("\n Invalid choice. Please enter a valid number corresponding to a location.")
             return
 
-def b_bvs(username): #DONE
+def b_bvs(username): #View and Edit Currently Booked Vacation Stays
     
     bookings = users_list[username]["bookings"]
 
     if not bookings:
-        print(f"\n {username}, you have no bookings.\n")
-        return 
+        print(f"\n {username}, you have no current bookings.\n")
+        input("\nPress Enter to exits...")
+        return user_login_menu()
     
     print("\nCurrently Booked Locations:")
     for i, booking in enumerate(bookings, start=1):
@@ -191,7 +192,7 @@ def b_bvs(username): #DONE
         else:
             print("Invalid input. Please enter 'Y' or 'N'.")
 
-def register_user(): #MAIN4
+def register_user(): #Register User
     print ("-"*55)
     print ("\t\t          Sign Up")
     print ("-"*55)
@@ -219,7 +220,7 @@ def register_user(): #MAIN4
             input("\nPress Enter to continue...")
             return main_menu()
             
-def admin_login(): #MAIN2
+def admin_login(): #Admin Login
     print ("-"*55)
     print ("\t\t      Admin Login")
     print ("-"*55)
@@ -243,7 +244,7 @@ def admin_login(): #MAIN2
         print ("\nAdmin Login DENIED!!!""\nExiting......\n")
         main_menu()
 
-def admin_login_menu(): #Incomplete choices
+def admin_login_menu(): #Admin Menu
     while True:
         print ("-"*55)
         print ("\t\t       Admin Menu")
@@ -268,7 +269,7 @@ def admin_login_menu(): #Incomplete choices
             aview_userbh()
 
         elif choice == "4":
-            main_menu()
+            logout()
         
         else:
             print ("-"*55)
@@ -276,7 +277,7 @@ def admin_login_menu(): #Incomplete choices
             print ("Please Try Again!!\n")
             admin_login_menu()
 
-def user_login(): #MAIN3
+def user_login(): #User Login
     while True:
             print ("-"*55)
             print ("\t\t       User Login")
@@ -302,7 +303,7 @@ def user_login(): #MAIN3
                 input("\nPress Enter to try again...")
                 return user_login()
 
-def user_login_menu(username): #DONE
+def user_login_menu(username): #User Menu
     while True:
         print ("-"*55)
         print ("\t\t        User Menu")
@@ -328,7 +329,7 @@ def user_login_menu(username): #DONE
             vb_h(username)
 
         elif choice == "4":
-            main_menu()
+            logout()
         
         else:
             print ("-"*55)
@@ -337,7 +338,15 @@ def user_login_menu(username): #DONE
             print ("-"*55)
             user_login_menu()
 
-def main_menu(): #MAIN
+def logout(): #Logout
+
+    current_user = None
+
+    print("\nYou have been successfully logged out.")
+    print("Redirecting to the login page...")
+    main_menu() 
+
+def main_menu(): #Main Menu
     while True:
         print ("="*55)
         print (" Welcome to the Philippines Vacation Booking System!!!")
@@ -352,7 +361,8 @@ def main_menu(): #MAIN
     
         if choice == "1":
             avail_vb()
-            
+            input("\nPress Enter to exits...")
+            return main_menu()
         elif choice == "2":
             admin_login()
 
