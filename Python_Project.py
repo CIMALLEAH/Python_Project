@@ -28,8 +28,8 @@ def view_vb():  #All Vacation Locations
     print ("-"*55)
     print ("         Vacation Locations in the Philippines")
     print ("-"*55)
-    for index, (det) in enumerate(vb_lib.items(), start=1):
-        print (index, ".\n   Location: ", det[1]['loc'], "\n   Price: Php {:.2f}".format(float(det[1]['p'])), "\n  ", det[1]['d'])
+    for index, (name, det) in enumerate(vb_lib.items(), start=1):
+        print (index, ".\n   Number: ",{name},"\n   Location: ", det[1]['loc'], "\n   Price: Php {:.2f}".format(float(det[1]['p'])), "\n  ", det[1]['d'])
         print () 
     
 def view_all_booked(): #Compiled Already Booked Loacations
@@ -62,26 +62,26 @@ def avail_vb(): #Available Locations
     if av_bl:
         for index, name in enumerate(av_bl, start=1):
             det = vb_lib[name]
-            print (index, ".\n   Location: ", det['loc'], "\n   Price: Php {:.2f}".format(float(det['p'])), "\n  ", det['d'])
+            print (index, ".\n   Number: ",{name},"\n   Location: ", det['loc'], "\n   Price: Php {:.2f}".format(float(det['p'])), "\n  ", det['d'])
             print () 
     else:
         print ("\n" + " "*16 + "NO AVAILABLE LOCATIONS")
 
-def vb_h(user, username=None): # View Booking History
-    if user == "admin":
+def vb_h(admin, username):  # View Booking History
+    if admin == "Micha":
         if username:
             booking_history = users_list.get(username, {}).get("booking_history", [])
             if not booking_history:
                 print(f"No booking history found for user: {username}\n")
             else:
-                print(f"\nBooking History for user: {username}:")
+                print(f"\nBooking History for user {username}: \n")
                 for i, booking in enumerate(booking_history, start=1):
                     print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}")
                 print()
         else:
             print("No username provided.\n")
     else:
-        booking_history = users_list[user].get("booking_history", [])
+        booking_history = users_list[username].get("booking_history", [])
         if not booking_history:
             print("No booking history.\n")
         else:
@@ -91,18 +91,20 @@ def vb_h(user, username=None): # View Booking History
             print()
 
     input("\nPress Enter to exit...")
-    if user == "admin":
+    if username == "Micha":
         admin_login_menu()
     else:
-        user_login_menu(user)
+        user_login_menu(username)
 
 def aview_userbh(): #Admin Viewing Users Booking History
     print ("-"*55)
-    print ("            User Booking History")
+    print ("                  User Booking History")
     print ("-"*55)
     username = input("\nEnter the Username of User: ")
     if username in users_list:
-        vb_h(user, username=None)
+        vb_h(admin_username, username) 
+        input("\nPress Enter to exits...")
+        return admin_login_menu()
     else:
         print("\nUser not found.")
         input("\nPress Enter to exits...")
@@ -113,13 +115,14 @@ def view_auab(): #Users and Their Bookings
     print("All Users and Their Booking Status")
     print ("-"*55)
     total_currently_booked = 0
-    for index, (username, user_details) in users_list.items():
+    for index, (username, user_details) in enumerate(users_list.items(), start=1):
         bookings = user_details.get("bookings", [])
         booking_status = "Has Bookings" if bookings else "No Bookings"
         print(f"{index}. User: {username} - {booking_status}")
         if bookings:
             total_currently_booked += len(bookings)
     print(f"\nTotal Currently Booked Vacation Stays: {total_currently_booked}\n")
+
 def bv_s(username): #Book a Vacation 
     print ("-"*55)
     print ("             WHICH WOULD YOU LIKE TO BOOK?")
@@ -215,7 +218,7 @@ def b_bvs(username): #View and Edit Currently Booked Vacation Stays
                     av_b.append(cancelled_booking['location']) 
                     print("\nBooked Location Canceled/Deleted Successfully.")
                     input("\nPress Enter to exits...")
-                    return user_login_menu()
+                    return user_login_menu(username)
                 else:
                     print("Invalid number. Please enter a valid  number.")
             except ValueError:
@@ -242,13 +245,20 @@ def del_loc(): #Delete Locations
     print("\t\t    Delete Location")
     view_vb()
     loc_key = input("Enter the number of the location to delete: ")
+    
     if loc_key in vb_lib:
-        del vb_lib[loc_key]
-        print("\nLocation deleted successfully.")
-        input("\nPress Enter to exits...")
-        return ad_1()
+        if int(loc_key) >6:
+            del vb_lib[loc_key]
+            av_b.append(loc_key)
+            print("\nLocation deleted successfully.")
+            input("\nPress Enter to exits...")
+            return ad_1()
+        else:
+            print("\nInvalid location number.")
+            input("\nTry Again...")
+            return del_loc()
     else:
-        print("\nInvalid location number.")
+        print("\nThis Location is not allowed to be deleted.")
         input("\nTry Again...")
         return del_loc()
 
@@ -284,7 +294,7 @@ def ad_1(): #View and Edit Libraries
     view_vb()
     avail_vb()
     view_all_booked()
-    print("\n\nLocation Editing Options:\n  1. Add New Location\n  2. Delete Location\n  3. Change Price For a Vacation Stay\n  4. Exit")
+    print("\nLocation Editing Options:\n\n  1. Add New Location\n  2. Delete Location\n  3. Change Price For a Vacation Stay\n  4. Exit")
     edit = input("\nWhat would you like to do? ").lower()
     
     if edit == '1':
@@ -342,7 +352,8 @@ def admin_login(): #Admin Login
 
     if ad_un_ip == admin_username and ad_pw_ip == admin_password:
         print ("\nAdmin Logged In Successfully!!!")
-        admin_login_menu()
+        input("\nPress Enter to exits...")
+        return admin_login_menu()
     
     elif ad_un_ip != admin_username and ad_pw_ip == admin_password:
         print ("\nUsername is incorrect, please try again....")
@@ -433,7 +444,7 @@ def user_login_menu(username): #User Menu
         
         elif choice == "3":
             print("-" * 55)
-            vb_h(user, username=None)
+            vb_h(admin_username, username)
 
         elif choice == "4":
             logout()
@@ -443,7 +454,7 @@ def user_login_menu(username): #User Menu
             print ("\nInvalid Input")
             print ("Please Try Again!!\n")
             print ("-"*55)
-            user_login_menu()
+            user_login_menu(username)
 
 def logout(): #Logout
 
