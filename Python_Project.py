@@ -29,7 +29,7 @@ def view_vb():  #All Vacation Locations
     print ("         Vacation Locations in the Philippines")
     print ("-"*55)
     for index, (name, det) in enumerate(vb_lib.items(), start=1):
-        print (index, ".\n   Number: ",{name},"\n   Location: ", det[1]['loc'], "\n   Price: Php {:.2f}".format(float(det[1]['p'])), "\n  ", det[1]['d'])
+        print (index, ".\n   Number: ",{name},"\n   Location: ", det['loc'], "\n   Price: Php {:.2f}".format(float(det['p'])), "\n  ", det['d'])
         print () 
     
 def view_all_booked(): #Compiled Already Booked Loacations
@@ -46,7 +46,7 @@ def view_all_booked(): #Compiled Already Booked Loacations
             for index, booking in enumerate(bookings, start=1):
                 print(f"   {index}. Location: {booking['location']}")
                 print(f"      Duration: {booking['duration']} days")
-                print(f"      Total Cost: Php {booking['total_cost']}")
+                print(f"      Total Cost: Php {booking['total_cost']:.2f}")
             print ("-"*55)
             print()
 
@@ -73,28 +73,27 @@ def vb_h(admin, username):  # View Booking History
             booking_history = users_list.get(username, {}).get("booking_history", [])
             if not booking_history:
                 print(f"No booking history found for user: {username}\n")
+
             else:
                 print(f"\nBooking History for user {username}: \n")
                 for i, booking in enumerate(booking_history, start=1):
-                    print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}")
+                    print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']:.2f}")
                 print()
         else:
             print("No username provided.\n")
+
     else:
         booking_history = users_list[username].get("booking_history", [])
         if not booking_history:
             print("No booking history.\n")
+            
         else:
             print("\nYour Booking History:")
             for i, booking in enumerate(booking_history, start=1):
-                print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}")
+                print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']:.2f}")
             print()
 
     input("\nPress Enter to exit...")
-    if username == "Micha":
-        admin_login_menu()
-    else:
-        user_login_menu(username)
 
 def aview_userbh(): #Admin Viewing Users Booking History
     print ("-"*55)
@@ -155,7 +154,7 @@ def bv_s(username): #Book a Vacation
                     break
 
             total_cost = round(float(det['p']) * ls, 2)
-            print ("\n Total Cost of your ",ls,"day/s Stay: Php ",total_cost) 
+            print("\n Total Cost of your {} day/s Stay: Php {:.2f}".format(ls, total_cost)) 
             
             book = input("\n Book this Location? (Y/N): ").lower()
             if book == 'y':
@@ -164,10 +163,10 @@ def bv_s(username): #Book a Vacation
                 booking_details = {
                     "location": det['loc'],
                     "duration": ls,
-                    "total_cost": total_cost
+                    "total_cost": round(total_cost,2)
                     }
                 users_list[username]["bookings"].append(booking_details)
-                users_list[username]["booking_history"].append(booking_details)
+                users_list[username]["booking_history"].append(booking_details.copy())
                 det['available'] = False 
 
                 while True:
@@ -202,7 +201,7 @@ def b_bvs(username): #View and Edit Currently Booked Vacation Stays
 
         print("\nCurrently Booked Locations:")
         for i, booking in enumerate(bookings, start=1):
-            print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']}")
+            print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']:.2f}")
 
     
         choice = input("\nDo you want to Cancel/Delete a Booked Location? (Y/N): ").lower()
@@ -251,6 +250,9 @@ def del_loc(): #Delete Locations
             del vb_lib[loc_key]
             av_b.append(loc_key)
             print("\nLocation deleted successfully.")
+            input("\nPress Enter to exits...")
+            return ad_1()
+        elif int(loc_key) == 0:
             input("\nPress Enter to exits...")
             return ad_1()
         else:
@@ -337,7 +339,7 @@ def register_user(): #Register User
                 print("\nPassword is to short....")
                 continue
 
-            users_list[username] = {"password" : password, "bookings":[]}  
+            users_list[username] = {"password" : password, "bookings":[], "booking_history": []}  
             print("\nUser signed up successfully."f"\nWelcome to you, {username}!!!")
             input("\nPress Enter to continue...")
             return main_menu()
