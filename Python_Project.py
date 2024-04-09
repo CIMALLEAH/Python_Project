@@ -46,7 +46,7 @@ def view_all_booked(): #Compiled Already Booked Loacations
             for index, booking in enumerate(bookings, start=1):
                 print(f"   {index}. Location: {booking['location']}")
                 print(f"      Duration: {booking['duration']} days")
-                print(f"      Total Cost: Php {booking['total_cost']:.2f}")
+                print(f"\n      Total Cost: Php {booking['total_cost']:.2f}")
             print ("-"*55)
             print()
 
@@ -77,7 +77,7 @@ def vb_h(admin, username):  # View Booking History
             else:
                 print(f"\nBooking History for user {username}: \n")
                 for i, booking in enumerate(booking_history, start=1):
-                    print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']:.2f}")
+                    print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days,\n   Total Cost: Php {booking['total_cost']:.2f}")
                 print()
         else:
             print("No username provided.\n")
@@ -90,7 +90,7 @@ def vb_h(admin, username):  # View Booking History
         else:
             print("\nYour Booking History:")
             for i, booking in enumerate(booking_history, start=1):
-                print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']:.2f}")
+                print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days,\n  Total Cost: Php {booking['total_cost']:.2f}")
             print()
 
     input("\nPress Enter to exit...")
@@ -201,7 +201,7 @@ def b_bvs(username): #View and Edit Currently Booked Vacation Stays
 
         print("\nCurrently Booked Locations:")
         for i, booking in enumerate(bookings, start=1):
-            print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days, Total Cost: Php {booking['total_cost']:.2f}")
+            print(f"{i}. Location: {booking['location']}, Duration: {booking['duration']} days,\n  Total Cost: Php {booking['total_cost']:.2f}")
 
     
         choice = input("\nDo you want to Cancel/Delete a Booked Location? (Y/N): ").lower()
